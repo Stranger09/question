@@ -6,6 +6,9 @@ import com.example.question.entity.User;
 import com.example.question.repository.RoleRepository;
 import com.example.question.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -40,14 +43,17 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
+    @CacheEvict("users")
     public User findUserById(Long userId) {
         Optional<User> userFromDb = userRepository.findById(userId);
         return userFromDb.orElse(new User());
     }
 
+    @Cacheable("users")
     public List<User> allUsers() {
         return userRepository.findAll();
     }
+
 
     public boolean saveUser(User user) {
         User userFromDB = userRepository.findByUsername(user.getUsername());
@@ -62,6 +68,12 @@ public class UserService implements UserDetailsService {
         return true;
     }
 
+    //Для теста
+    public User create(User user){
+        return userRepository.save(user);
+    }
+
+    @CacheEvict("users")
     public boolean deleteUser(Long userId) {
         if (userRepository.findById(userId).isPresent()) {
             userRepository.deleteById(userId);
@@ -70,6 +82,7 @@ public class UserService implements UserDetailsService {
         return false;
     }
 
+    @Cacheable("users")
     public List<User> usergtList(Long idMin) {
         return em.createQuery("SELECT u FROM User u WHERE u.id > :paramId", User.class)
                 .setParameter("paramId", idMin).getResultList();
