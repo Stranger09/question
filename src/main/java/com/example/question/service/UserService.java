@@ -6,6 +6,8 @@ import com.example.question.entity.User;
 import com.example.question.repository.RoleRepository;
 import com.example.question.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -45,6 +47,7 @@ public class UserService implements UserDetailsService {
         return userFromDb.orElse(new User());
     }
 
+    @Cacheable("user")
     public List<User> allUsers() {
         return userRepository.findAll();
     }
@@ -62,6 +65,7 @@ public class UserService implements UserDetailsService {
         return true;
     }
 
+    @CacheEvict("user")
     public boolean deleteUser(Long userId) {
         if (userRepository.findById(userId).isPresent()) {
             userRepository.deleteById(userId);

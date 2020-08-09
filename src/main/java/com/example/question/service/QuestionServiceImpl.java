@@ -3,6 +3,8 @@ package com.example.question.service;
 
 import com.example.question.form.Question;
 import com.example.question.repository.QuestionRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +32,14 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     @Transactional
+    @Cacheable("quest")
     public Question getQuestionById(Long id) {
         return this.questionRepository.getQuestionById(id);
     }
 
     @Override
     @Transactional
+    @CacheEvict("quest")
     public void delete(Long id) {
         this.questionRepository.delete(id);
     }
